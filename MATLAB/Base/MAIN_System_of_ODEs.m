@@ -53,19 +53,19 @@ v = CalculateIntermediates(t, x, u, p);
 tiledlayout flow
 ax_height = nexttile;
 plot(t, v.h, 'LineWidth',2);
-legend('h','Location','northwest');
+legend('h','Location','northwest','FontSize',12);
+xlabel('Time (s)','FontSize',12); 
+ylabel('Liquid level (m)','FontSize',12);
 
 ax_concentration = nexttile;
 plot(t, v.cA3, t, v.cB3, t, v.cC3, 'LineWidth', 2)
-legend('c_A', 'c_B', 'c_C','Location','northwest')
+legend('c_A', 'c_B', 'c_C','Location','northwest','FontSize',12)
+xlabel('Time (s)','FontSize',12); 
+ylabel('Concentration (mol/m3)','FontSize',12);
 
 
 %% Define measurement noise, frequency and delay
-% Create measurement structures:
-%  fields: names of measurements
-%  var:    assume gaussian noise with variance "var"
-%  T:      measurement period T = 1/frequency
-%  D:      measurement delay y ~ y(t - D)
+% Create measurement structures. Type "help Measurements" for more information
 meas.fields = {'q1','q2','q3','h','cA3','cB3','cC3'};
 
 meas.q1  = struct('func', @(t, x, u, v, p) u.q1(t), 'var', 0.001, 'T', 1,  'D', 0);
@@ -75,6 +75,7 @@ meas.h   = struct('func', @(t, x, u, v, p) v.h,     'var', 0.1,   'T', 5,  'D', 
 meas.cA3 = struct('func', @(t, x, u, v, p) v.cA3,   'var', 0.02,  'T', 60, 'D', 60);
 meas.cB3 = struct('func', @(t, x, u, v, p) v.cB3,   'var', 0.02,  'T', 60, 'D', 60);
 meas.cC3 = struct('func', @(t, x, u, v, p) v.cC3,   'var', 0.02,  'T', 60, 'D', 60);
+
 
 % Record measurements
 y = Measurements(t, x, u, v, p, meas);
@@ -92,4 +93,3 @@ plot(y.cA3,'.','MarkerSize',20)
 plot(y.cB3,'.','MarkerSize',20)
 plot(y.cC3,'.','MarkerSize',20)
 legend('c_A', 'c_B', 'c_C','Location','northwest')
-

@@ -1,7 +1,7 @@
 function y = Measurements(t, x, u, v, p, meas)
 % This function uses process variables (t, x, u, v) as inputs, as well as a structure
 % describing the nature of the measurements, to generate a set of measured
-% values.
+% values. The measured values are returned as time-series objects
 %
 % Process variables:
 %   t: time (scalar or vector)
