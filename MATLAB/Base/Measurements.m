@@ -1,16 +1,41 @@
-function y = Measurements(t, x, u, p, v, meas)
+function y = Measurements(t, x, u, v, p, meas)
+% This function uses process variables (t, x, u, v) as inputs, as well as a structure
+% describing the nature of the measurements, to generate a set of measured
+% values.
+%
+% Process variables:
+%   t: time (scalar or vector)
+%   x: structure of state variables
+%   u: structure of exogeneous inputs
+%   v: structure of intermediate dependent variables (not state variables)
+%   p: structure of parameters
+%
+% The measurement structure "meas" has a field "fields", which contains the
+% names of the different measurements. The properties of each different
+% measurement can be accessed by "meas.(fields{i})" for i = 1, 2, 3, ...
+% Each type of measurement has the following properties:
+%   .func: Anonymous function with inputs @(t, x, u, v, p) used to calculate 
+%          measurement value using process variables as input
+%   .var:  Magnitude of noise variance (assume Gaussian noise)
+%   .T:    Measurement period (T = 1/frequency)
+%   .D:    Measurement delay
+%
+% For example, a liquid level "h" may be given by x.V/p.A, with normally
+% distributed sensor noise with variance 0.1, measurement frequency of 2 Hz
+% and a measurement delay of 0.25 s. The corresponding structure would be:
+% meas.h = 
+%     func: @(t,x,u,v) x.V / p.A
+%      var: 0.1
+%        T: 0.5
+%        D: 0.25
 
-values.q1  = u.q1(t) + meas.q1.noise  *randn(size(t)); 
-values.q2  = u.q2(t) + meas.q2.noise  *randn(size(t));
-values.q3  = v.q3    + meas.q3.noise  *randn(size(t));
-values.h   = v.h     + meas.h.noise   *randn(size(t));
-values.cA3 = v.cA3   + meas.cA3.noise *randn(size(t));
-values.cB3 = v.cB3   + meas.cB3.noise *randn(size(t));
-values.cC3 = v.cC3   + meas.cC3.noise *randn(size(t));
-    
+% Calculate measurement values for each field in "meas"
 for i = 1:length(meas.fields)
-    times = 0 : meas.(meas.fields{i}).T : t(end);
-    interp_values = interp1(t, values.(meas.fields{i}), times);
-    y.(meas.fields{i}) = timeseries(interp_values, times);
-
+    current = meas.(meas.fields{i});    % Current measurement
+    values = current.func(t, x, u, v) + current.var*randn(size(t)); % Time-series values + noise
+    times = 0 : current.T : t(end); % Measurement time points
+    interp_values = interp1(t, values, times); % Interpolate to measurement time-points
+    
+    % Create time-series object at measurement time-points, delayed by "D"
+    y.(meas.fields{i}) = timeseries(interp_values, times + current.D); 
 end

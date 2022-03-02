@@ -1,0 +1,33 @@
+function y = Measurements(t, x, u, v, p, meas)
+% This function uses process variables (t, x, u, v) as inputs, as well as a structure
+% describing the nature of the measurements, to generate a set of measured
+% values.
+%
+% Process variables:
+%   t: time (scalar or vector)
+%   x: structure of state variables
+%   u: structure of exogeneous inputs
+%   v: structure of intermediate dependent variables (not state variables)
+%   p: structure of parameters
+%
+% The measurement structure "meas" has a field "fields", which contains the
+% names of the different measurements. The properties of each different
+% measurement can be accessed by "meas.(fields{i})" for i = 1, 2, 3, ...
+% Each type of measurement has the following properties:
+%   .func: Anonymous function with inputs @(t, x, u, v, p) used to calculate 
+%          measurement value using process variables as input
+%   .var:  Magnitude of noise variance (assume Gaussian noise)
+%   .T:    Measurement period (T = 1/frequency)
+%   .D:    Measurement delay
+%
+% For example, a liquid level "h" may be given by x.V/p.A, with normally
+% distributed sensor noise with variance 0.1, measureme
+   
+for i = 1:length(meas.fields)
+    current = meas.(meas.fields{i});
+    values = current.func(t, x, u, v) + current.var*randn(size(t));
+    times = 0 : current.T : t(end);
+    interp_values = interp1(t, values, times);
+    y.(meas.fields{i}) = timeseries(interp_values, times + current.D);
+
+end
