@@ -1,0 +1,16 @@
+function y = Measurements(t, x, u, p, v, meas)
+
+values.q1  = u.q1(t) + meas.q1.noise  *randn(size(t));
+values.q2  = u.q1(t) + meas.q1.noise  *randn(size(t));
+values.q3  = u.q1(t) + meas.q1.noise  *randn(size(t));
+values.h  = u.q1(t) + meas.q1.noise  *randn(size(t));
+values.q1  = u.q1(t) + meas.q1.noise  *randn(size(t));
+values.q1  = u.q1(t) + meas.q1.noise  *randn(size(t));
+values.q1  = u.q1(t) + meas.q1.noise  *randn(size(t));
+    
+for i = 1:length(meas.fields)
+    times = 0 : meas.(meas.fields{i}).T : t(end);
+    interp_values = interp1(t, values, times);
+    y.(meas.fields{i}) = timeseries(interp_values, time);
+
+end

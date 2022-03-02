@@ -1,0 +1,34 @@
+function dxdt = SystemODEs(t, x_vec, u, p)
+% Convert state vector to structure
+x = xV2xS(x_vec, p.fields);
+
+% Calculate concentrations
+cA3 = x.nA / x.V;   % mo
+cB3 = x.nB / x.V;
+cC3 = x.nC / x.V;
+
+% Calculate all flowrates
+h  = x.V/p.A;
+q3 = p.cV*sqrt(h);
+nA1 = u.q1(t)*u.cA1(t);
+nB1 = u.q2(t)*u.cB2(t);
+nA3 = q3*cA3;
+nB3 = q3*cB3;
+nC3 = q3*cC3;
+
+% Calculate reaction rates and source terms
+r(1) = p.k1*cA3;
+r(2) = p.k2f*cA3*cB3^2 - p.k2r*cC3;
+S_vec = p.Nu*r;
+S = xV2xS(S_vec, p.fields);
+
+% Calculate state derivatives
+ddt.V  = u.q1(t) + u.q2(t) - q + S.V;
+ddt.nA = nA1 - nA3 + S.A;
+ddt.nB = nB2 - nB3 + S.B;
+ddt.nC =     - nC3 + S.C;
+
+dxdt = xS2xV(ddt, p.fields);
+
+
+
