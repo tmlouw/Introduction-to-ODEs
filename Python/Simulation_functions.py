@@ -1,6 +1,19 @@
 import types
 import numpy as np
 
+def reactor_ns2vec(x_ns, fields):
+    d = x_ns.__dict__
+    x_vec = np.zeros(len(fields))
+    for i in range(len(fields)):
+        x_vec[i] = d[fields[i]]
+    return x_vec
+
+
+def reactor_vec2ns(x_vec, fields):
+    d = {fields[i]: x_vec[i] for i in range(len(fields))}
+    return types.SimpleNamespace(**d)
+
+
 def reactor_intermediate_variables(t, x, u, p):
     # Unpack vector
     V = x[0]

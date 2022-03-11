@@ -33,7 +33,8 @@ for i in range(1, t.size):
 
 u.cB2 = interp1d(t, y + 2)
 
-#%% Integrate ODE
+#%% Define state variables and integrate ODE
+p.fields = ['V', 'nA']
 x0 = np.empty(4)
 x0[0] = 0.9     # m3, initial tank volume
 x0[1] = 0.15    # mol/m3, initial concentration of A

@@ -39,9 +39,9 @@ u.cB2 = griddedInterpolant(t, y);
 %% Define state structure and initial conditions
 p.state_fields = {'V', 'nA', 'nB', 'nC'};   % Field names for each state
 x0.V = 0.9;      % m3, initial tank volume
-x0.nA = 0.15;    % mol/m3, initial concentration of A
-x0.nB = 0.25;    % mol/m3, initial concentration of A
-x0.nC = 0.30;    % mol/m3, initial concentration of A   
+x0.nA = 0.15;    % mol, initial amount of A
+x0.nB = 0.25;    % mol, initial amount of A
+x0.nC = 0.30;    % mol, initial amount of A   
 x0_vec = xS2xV(x0, p.state_fields);
 
 %% Simulate system of ODEs
