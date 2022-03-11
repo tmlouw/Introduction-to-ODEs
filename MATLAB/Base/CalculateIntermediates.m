@@ -29,8 +29,6 @@ v.nC3 = v.q3.*v.cC3;       % mol/s, molar flowrate of C out of CSTR
 r(1,:) = p.k1*v.cA3;        % mol/m3.s, reaction rate 1
 r(2,:) = p.k2f*v.cA3.*v.cB3.^2 - p.k2r*v.cC3; % mol/m3.s, reaction rate 2
 
-Nu = xS2xV(p.Nu, p.state_fields);   % Convert structured coefficients to vector
-S_vec = Nu*r;                       % Vector of source terms
-
-% Package vector of source terms as a structure
-v.S = xV2xS(S_vec, p.state_fields);
+for i = 1:length(p.state_fields)
+    v.S.(p.state_fields{i}) = p.Nu.(p.state_fields{i}) * r;
+end

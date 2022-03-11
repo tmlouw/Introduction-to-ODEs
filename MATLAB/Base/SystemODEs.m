@@ -12,10 +12,10 @@ x = xV2xS(x_vec, p.state_fields);
 v = CalculateIntermediates(t, x, u, p);
 
 % Calculate state derivatives as structure
-ddt.V  = u.q1(t) + u.q2(t) - v.q3 + v.S.V;
-ddt.nA = v.nA1 - v.nA3 + v.S.nA;
-ddt.nB = v.nB2 - v.nB3 + v.S.nB;
-ddt.nC =       - v.nC3 + v.S.nC;
+ddt.V  = u.q1(t) + u.q2(t) - v.q3 + v.S.V*x.V;
+ddt.nA = v.nA1 - v.nA3 + v.S.nA*x.V;
+ddt.nB = v.nB2 - v.nB3 + v.S.nB*x.V;
+ddt.nC =       - v.nC3 + v.S.nC*x.V;
 
 % Map state derivative structure to vector
 dxdt = xS2xV(ddt, p.state_fields);
