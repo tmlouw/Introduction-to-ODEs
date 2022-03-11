@@ -19,7 +19,10 @@ p.k2f = 2.5e+0 # m6/mol2.s, Reaction 2 forward rate constant
 p.k2r = 5.0e-2 # 1/s, Reaction 2 reverse rate constant
 
 # Matrix of stoichiometric coefficients for each state variable
-p.Nu = np.array([[0, 0], [-1, -1], [1, -2], [0, 1]])
+p.Nu = types.SimpleNamespace(V  = np.array([ 0,  0]),
+                             nA = np.array([-1, -1]),
+                             nB = np.array([ 1, -2]),
+                             nC = np.array([ 0,  1]))
 
 #%% Define exogeneous variables
 u = types.SimpleNamespace()
@@ -34,22 +37,18 @@ for i in range(1, t.size):
 u.cB2 = interp1d(t, y + 2)
 
 #%% Define state variables and integrate ODE
-p.fields = ['V', 'nA']
-x0 = np.empty(4)
-x0[0] = 0.9     # m3, initial tank volume
-x0[1] = 0.15    # mol/m3, initial concentration of A
-x0[2] = 0.25    # mol/m3, initial concentration of A
-x0[3] = 0.30    # mol/m3, initial concentration of A
+p.fields = ['V', 'nA', 'nB', 'nC']
+x0 = types.SimpleNamespace(V = 0.9,     # m3, initial tank volume
+                           nA = 0.15,   # mol, initial amount of A
+                           nB = 0.25,   # mol, initial amount of A
+                           nC = 0.30)   # mol, initial amount of A
 
-x0 = np.array([0.9, 0.15, 0.25, 0.30])
+x0_vec = reactor_ns2vec(x0, p.fields)
 sol = solve_ivp(lambda t, x: reactor_ode(t, x, u, p),
-                [0, t[-1]], x0, t_eval = t)
+                [0, t[-1]], x0_vec, t_eval = t)
 
-V = sol.y[0]
-nA = sol.y[1]
-nB = sol.y[2]
-nC = sol.y[3]
-v = reactor_intermediate_variables(t, sol.y, u, p)
+x = reactor_vec2ns(sol.y, p.fields)
+v = reactor_intermediate_variables(t, x, u, p)
 
 #%% Plot the solution to the problem
 fig = plt.figure()
