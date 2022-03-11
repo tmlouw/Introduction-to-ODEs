@@ -2,14 +2,20 @@ import types
 import numpy as np
 
 def reactor_ns2vec(x_ns, fields):
-    d = x_ns.__dict__
-    x_vec = np.zeros(len(fields))
+    # Convert the namespace of states to a vector,
+    # sorted according to the order provided by "fields
+    d = x_ns.__dict__               # Convert simple namespace to dictionary
+    x_vec = np.zeros(len(fields))   # Initialize vector
     for i in range(len(fields)):
-        x_vec[i] = d[fields[i]]
+        x_vec[i] = d[fields[i]]     # Supply entries to vector
     return x_vec
 
 
 def reactor_vec2ns(x_vec, fields):
+    # Convert the state vector to a simple namespace,
+    # sorted accroding to the order provided by "fields"
+    # This code unpacks all elements in the vector into a dictionary,
+    # then converts the dictionary into a simple namespace
     d = {fields[i]: x_vec[i] for i in range(len(fields))}
     return types.SimpleNamespace(**d)
 
@@ -35,10 +41,14 @@ def reactor_intermediate_variables(t, x, u, p):
     else:
         r = np.zeros([2, t.size])
 
-    # reaction rates in mol/m3.s
+    # Reaction rates in mol/m3.s
     r[0,:] = p.k1 *v.cA3
     r[1,:] = p.k2f*v.cA3*v.cB3**2 - p.k2r*v.cC3
 
+    # Calculate source (generation / depletion terms) for each state variable,
+    # in units of mol/m3.s. The code unpacks p.Nu into a dictionary, then creates
+    # a new dictionary where each element is given by the matrix multiplication
+    # of Nu*r. Finally, the dictionary is packed back into a namespace
     Nu = p.Nu.__dict__
     d = {p.fields[i]: Nu[p.fields[i]].dot(r) for i in range(len(p.fields))}
     v.S = types.SimpleNamespace(**d)
@@ -46,7 +56,7 @@ def reactor_intermediate_variables(t, x, u, p):
     return v
 
 def reactor_ode(t, x_vec, u, p):
-    # Unpack vector
+    # Unpack state vector into a namespace
     x = reactor_vec2ns(x_vec, p.fields)
 
     # Calculate intermediate variables
