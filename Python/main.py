@@ -61,3 +61,46 @@ ax2.plot(t, v.cA3)
 ax2.plot(t, v.cB3)
 ax2.plot(t, v.cC3)
 plt.show()
+
+#%% Define measurement noise, frequency and delay
+# Create measurement namespace.
+meas = types.SimpleNamespace()
+meas.q1  = types.SimpleNamespace(func = lambda t, x, u, v, p: u.q1(t),
+                                 var = 0.001,
+                                 T = 1,
+                                 D = 0)
+meas.q2  = types.SimpleNamespace(func = lambda t, x, u, v, p: u.q2(t),
+                                 var = 0.001,
+                                 T = 1,
+                                 D = 0)
+meas.q3  = types.SimpleNamespace(func = lambda t, x, u, v, p: u.q3(t),
+                                 var = 0.001,
+                                 T = 1,
+                                 D = 0)
+meas.h   = types.SimpleNamespace(func = lambda t, x, u, v, p: v.h,
+                                 var = 0.1,
+                                 T = 5,
+                                 D = 2)
+meas.cA3 = types.SimpleNamespace(func = lambda t, x, u, v, p: v.cA3,
+                                 var = 0.02,
+                                 T = 60,
+                                 D = 60)
+meas.cB3 = types.SimpleNamespace(func = lambda t, x, u, v, p: v.cB3,
+                                 var = 0.02,
+                                 T = 60,
+                                 D = 60)
+meas.cC3 = types.SimpleNamespace(func = lambda t, x, u, v, p: v.cC3,
+                                 var = 0.02,
+                                 T = 60,
+                                 D = 60)
+meas.fields = list(meas.__dict__.keys())
+
+# Record measurements
+y = reactor_measurements(t, x, u, v, p, meas)
+
+#%% Plot measurements
+ax1.plot(y.h)
+
+ax2.plot(y.cA3)
+ax2.plot(y.cB3)
+ax2.plot(y.cC3)

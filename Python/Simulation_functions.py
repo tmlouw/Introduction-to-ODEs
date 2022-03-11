@@ -21,7 +21,16 @@ def reactor_vec2ns(x_vec, fields):
 
 
 def reactor_intermediate_variables(t, x, u, p):
-    # Calculate intermediate values
+    # Calculate intermediate process variables
+    # (i.e. all variables which are neither exogeneous inputs
+    #       nor state variables)
+    #
+    # The function requires the following process variables as inputs:
+    #   t: time (scalar or array)
+    #   x: simple namespace of state variables
+    #   u: simple namespace of exogeneous inputs
+    #   p: simple namespace of parameters
+
     v = types.SimpleNamespace()
     v.cA3 = x.nA / x.V      # mol/m3, concentration of A
     v.cB3 = x.nB / x.V      # mol/m3, concentration of B
@@ -56,6 +65,14 @@ def reactor_intermediate_variables(t, x, u, p):
     return v
 
 def reactor_ode(t, x_vec, u, p):
+    # Calculate the time-derivative of all state variables
+    #
+    # The function requires the following process variables as inputs:
+    #   t: time (scalar or array)
+    #   x: simple namespace of state variables
+    #   u: simple namespace of exogeneous inputs
+    #   p: simple namespace of parameters
+
     # Unpack state vector into a namespace
     x = reactor_vec2ns(x_vec, p.fields)
 
