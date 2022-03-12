@@ -3,6 +3,7 @@ from IPython import get_ipython
 get_ipython().run_line_magic('reset', '-f')
 
 from Simulation_functions import *
+from Measurement_functions import *
 import types
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
@@ -51,16 +52,6 @@ sol = solve_ivp(lambda t, x: reactor_ode(t, x, u, p),
 x = reactor_vec2ns(sol.y, p.fields)
 v = reactor_intermediate_variables(t, x, u, p)
 
-#%% Plot the solution to the problem
-fig = plt.figure()
-ax1 = fig.add_subplot(211)
-ax1.plot(t, v.h)
-
-ax2 = fig.add_subplot(212)
-ax2.plot(t, v.cA3)
-ax2.plot(t, v.cB3)
-ax2.plot(t, v.cC3)
-plt.show()
 
 #%% Define measurement noise, frequency and delay
 # Create measurement namespace.
@@ -73,7 +64,7 @@ meas.q2  = types.SimpleNamespace(func = lambda t, x, u, v, p: u.q2(t),
                                  var = 0.001,
                                  T = 1,
                                  D = 0)
-meas.q3  = types.SimpleNamespace(func = lambda t, x, u, v, p: u.q3(t),
+meas.q3  = types.SimpleNamespace(func = lambda t, x, u, v, p: v.q3,
                                  var = 0.001,
                                  T = 1,
                                  D = 0)
@@ -98,9 +89,24 @@ meas.fields = list(meas.__dict__.keys())
 # Record measurements
 y = reactor_measurements(t, x, u, v, p, meas)
 
-#%% Plot measurements
-ax1.plot(y.h)
+#%% Plot the height, concentration, and measurements
+fig = plt.figure()
+ax1 = fig.add_subplot(211)
+ax1.plot(t, v.h)
 
-ax2.plot(y.cA3)
-ax2.plot(y.cB3)
-ax2.plot(y.cC3)
+ax2 = fig.add_subplot(212)
+ax2.plot(t, v.cA3)
+ax2.plot(t, v.cB3)
+ax2.plot(t, v.cC3)
+
+ax1.plot(y.h.Time, y.h.Data, 'ko', ms = 2, mfc = 'C0', mew = 0.5)
+ax2.plot(y.cA3.Time, y.cA3.Data, 'ko', ms = 4, mfc = 'C0', mew = 0.5)
+ax2.plot(y.cB3.Time, y.cB3.Data, 'ko', ms = 4, mfc = 'C1', mew = 0.5)
+ax2.plot(y.cC3.Time, y.cC3.Data, 'ko', ms = 4, mfc = 'C2', mew = 0.5)
+
+ax1.set_ylabel('Liquid level (m)')
+ax2.set_ylabel('Concentration (mol/m3)')
+ax2.set_xlabel('Time (s)')
+
+
+plt.show()
